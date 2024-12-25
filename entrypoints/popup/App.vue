@@ -41,7 +41,7 @@ function open(url: string) {
 			<template v-for="item in histories" :key="item.id">
 				<a class="cursor-pointer" @click="open(item.url!)">
 					<div class="flex items-center my-2 gap-2">
-						<SiteAvatar :url="item.url!" :title="item.title!" class="size-6" />
+						<SiteAvatar :url="item.url!" :title="item.title" class="size-6" />
 						<div class="truncate">
 							<p class="truncate">
 								{{ item.title }}

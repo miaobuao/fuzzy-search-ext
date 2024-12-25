@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { Globe } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const { url, title } = defineProps<{
 	url: string
-	title: string
+	title?: string
 }>()
 
 function getFavoriteIcon(url: string) {
@@ -16,7 +17,10 @@ function getFavoriteIcon(url: string) {
 	<Avatar v-bind="$attrs">
 		<AvatarImage :src="getFavoriteIcon(url)" loading="lazy" />
 		<AvatarFallback>
-			{{ title.slice(0, 1).toUpperCase() }}
+			<template v-if="title?.length">
+				{{ title.slice(0, 1).toUpperCase() }}
+			</template>
+			<Globe v-else />
 		</AvatarFallback>
 	</Avatar>
 </template>
