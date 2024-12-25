@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator'
 import { HistoryItem, useProcedure } from '@/utils/procedure'
 import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
 import { debounce } from 'lodash-es'
+import SiteAvatar from '@/components/SiteAvatar.vue'
 
 const searchInput = ref<HTMLInputElement | null>(null)
 const { focused: searchInputFocused } = useFocus(searchInput)
@@ -39,7 +40,8 @@ function open(url: string) {
 		<ScrollArea class="h-72 p-1">
 			<template v-for="item in histories" :key="item.id">
 				<a class="cursor-pointer" @click="open(item.url!)">
-					<div class="flex my-2">
+					<div class="flex items-center my-2 gap-2">
+						<SiteAvatar :url="item.url!" :title="item.title!" class="size-6" />
 						<div class="truncate">
 							<p class="truncate">
 								{{ item.title }}
