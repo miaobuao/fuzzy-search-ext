@@ -9,7 +9,7 @@ export default defineConfig({
 	manifest: {
 		name: 'Fuzzy Search',
 		description: 'Fuzzy Search',
-		permissions: ['history'],
+		permissions: ['history', 'tabs'],
 	},
 	vite: () => ({
 		css: {
