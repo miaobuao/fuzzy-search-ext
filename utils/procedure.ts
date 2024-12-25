@@ -20,6 +20,9 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 			hasIndex() {
 				return !isNil(fuse)
 			},
+			addHistory(history: HistoryItem) {
+				fuse.add(history)
+			},
 			search(query: string) {
 				return fuse.search(query)
 			},
