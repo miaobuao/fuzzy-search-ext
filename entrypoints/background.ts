@@ -1,4 +1,5 @@
 import { registerProcedure } from '@/utils/procedure'
+import { debounce } from 'lodash-es'
 
 registerProcedure()
 
@@ -9,7 +10,20 @@ export default defineBackground(async () => {
 		await procedure.initFuseIndexing()
 	}
 
-	browser.history.onVisited.addListener((item) => {
-		procedure.addHistory(item)
+	const updateIndex = debounce(async () => {
+		await procedure.updateFuseIndex()
+	}, 500)
+
+	browser.history.onVisited.addListener((history) => {
+		if (!history.url) {
+			return
+		}
+		function onComplete() {
+			browser.webRequest.onCompleted.removeListener(onComplete)
+			updateIndex()
+		}
+		browser.webRequest.onCompleted.addListener(onComplete, {
+			urls: [history.url],
+		})
 	})
 })
