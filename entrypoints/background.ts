@@ -41,10 +41,7 @@ export default defineBackground(async () => {
 				return
 			}
 			browser.tabs.onRemoved.removeListener(onRemoved)
-			const history = await db.RecentlyClosedHistory.where({
-				url,
-				title,
-			}).first()
+			const history = await db.RecentlyClosedHistory.where({ url }).first()
 			if (history) {
 				await db.RecentlyClosedHistory.update(history.id, {
 					title,
@@ -54,7 +51,7 @@ export default defineBackground(async () => {
 			} else {
 				db.RecentlyClosedHistory.add({
 					title,
-					url: url!,
+					url,
 					ctime: Date.now(),
 				})
 			}

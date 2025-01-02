@@ -1,6 +1,6 @@
 import { defineProxyService } from '@webext-core/proxy-service'
 import Fuse from 'fuse.js'
-import { isNil } from 'lodash-es'
+import { isNil, uniqBy } from 'lodash-es'
 import { History } from 'wxt/browser'
 import {
 	getAllHistories as _getAllHistories,
@@ -82,9 +82,10 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 				.aboveOrEqual(startTime)
 				.toArray()
 			updateFuseIndex()
-			return res
+			const recentlyClosed = res
 				.map((r) => urlToHistoryItem(r.url))
 				.filter(Boolean) as HistoryItem[]
+			return uniqBy(recentlyClosed, 'id')
 		}
 
 		async function searchRecentlyClosed(
@@ -109,6 +110,7 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 		}
 
 		return {
+			urlToHistoryItem,
 			getAllHistories,
 			initFuseIndexing,
 			hasIndex,
