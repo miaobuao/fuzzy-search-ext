@@ -14,13 +14,18 @@ const histories = ref<HistoryItem[]>([])
 const procedure = useProcedure()
 const loadingSearchResult = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
 	searchInputFocused.value = true
+	histories.value = await procedure.getAllHistories()
 })
 
 const search = debounce(async function () {
 	loadingSearchResult.value = true
 	try {
+		if (!searchString.value) {
+			histories.value = await procedure.getAllHistories()
+			return
+		}
 		if (!(await procedure.hasIndex())) {
 			await procedure.initFuseIndexing()
 		}
@@ -34,8 +39,8 @@ const search = debounce(async function () {
 
 <template>
 	<DarkModeAdaptor />
-	<div class="flex flex-col w-72 h-96 px-2 pt-2 gap-2">
-		<div class="flex items-center gap-2">
+	<div class="flex flex-col w-72 h-96">
+		<div class="flex items-center p-2">
 			<Input ref="searchInput" v-model="searchString" @keydown="search" />
 		</div>
 		<div

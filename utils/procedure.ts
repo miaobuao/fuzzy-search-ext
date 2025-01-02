@@ -13,6 +13,9 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 		let fuse: Fuse<HistoryItem>
 		let histories: History.HistoryItem[]
 		return {
+			getAllHistories() {
+				return getAllHistories()
+			},
 			async initFuseIndexing() {
 				histories = await getAllHistories()
 				const index = Fuse.createIndex(keys, histories)
