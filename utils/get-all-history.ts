@@ -3,7 +3,7 @@ import { type History } from 'wxt/browser'
 
 export async function getAllHistories() {
 	const res: History.HistoryItem[] = []
-	let endTime = Number.MAX_SAFE_INTEGER
+	let endTime = Date.now()
 	const appearedId = new Map<string, true>()
 	while (true) {
 		let items = await browser.history.search({

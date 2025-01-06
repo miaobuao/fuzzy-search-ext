@@ -4,11 +4,11 @@ import { debounce, isNil } from 'lodash-es'
 
 registerProcedure()
 
-export default defineBackground(async () => {
+export default defineBackground(() => {
 	const procedure = useProcedure()
 
-	if (!(await procedure.hasIndex())) {
-		await procedure.initFuseIndexing()
+	if (!procedure.hasIndex()) {
+		procedure.initFuseIndexing()
 	}
 
 	const updateIndex = debounce(async () => {
