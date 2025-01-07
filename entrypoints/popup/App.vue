@@ -67,26 +67,23 @@ const search = debounce(async () => {
 <template>
 	<DarkModeAdaptor />
 	<LocaleAdapter />
-	<div class="flex flex-col w-80 h-[30rem]">
-		<div class="flex items-center p-2">
-			<Input
-				ref="searchInput"
-				v-model="searchString"
-				@keydown="search"
-				:placeholder="
-					tab === 'all-history'
-						? $t('searchHistory')
-						: $t('searchRecentlyClosed')
-				"
-			/>
-		</div>
+	<div class="flex flex-col w-80 h-[600px] px-2 pt-2 gap-2">
+		<Input
+			class="mx-auto"
+			ref="searchInput"
+			v-model="searchString"
+			@keydown="search"
+			:placeholder="
+				tab === 'all-history' ? $t('searchHistory') : $t('searchRecentlyClosed')
+			"
+		/>
 		<div
 			v-if="loadingSearchResult"
 			class="flex-1 flex justify-center items-center"
 		>
 			<Loader2 class="size-8 animate-spin" />
 		</div>
-		<TabsRoot v-else class="flex flex-col flex-1 max-h-full" v-model="tab">
+		<TabsRoot v-else v-model="tab" as-child>
 			<TabsList class="relative flex border-b">
 				<TabsIndicator
 					class="absolute px-8 left-0 h-0.5 bottom-0 w-[--radix-tabs-indicator-size] translate-x-[--radix-tabs-indicator-position] rounded-full transition-[width,transform] duration-300"
@@ -100,10 +97,10 @@ const search = debounce(async () => {
 					{{ $t('recentlyClosed') }}
 				</TabsTrigger>
 			</TabsList>
-			<TabsContent class="tabs-content" value="all-history">
+			<TabsContent value="all-history" as-child>
 				<SearchResultList class="search-result-list" :items="histories" />
 			</TabsContent>
-			<TabsContent class="tabs-content" value="recent-close">
+			<TabsContent value="recent-close" as-child>
 				<SearchResultList
 					class="search-result-list"
 					:items="recentlyClosedHistories"
@@ -115,12 +112,9 @@ const search = debounce(async () => {
 
 <style scoped>
 .tabs-trigger {
-	@apply px-5 p-2 flex items-center justify-center leading-none select-none outline-none;
-}
-.tabs-content {
-	@apply flex-1 max-h-full;
+	@apply px-5 p-2 text-sm flex items-center justify-center leading-none select-none outline-none;
 }
 .search-result-list {
-	@apply p-1 max-h-full;
+	@apply flex-1;
 }
 </style>
