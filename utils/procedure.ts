@@ -7,22 +7,35 @@ import {
 	getHistoriesAfter,
 } from './get-all-history'
 import { db } from './indexed-db'
+import { toPinyinString } from './to-pinyin'
 
-export interface HistoryItem extends History.HistoryItem {}
-const keys: Array<keyof HistoryItem> = ['title', 'url']
+export interface HistoryItem extends History.HistoryItem {
+	pinyin: string
+}
+
+const keys: Array<keyof HistoryItem> = ['title', 'url', 'pinyin']
+
+function historyAssignPinyin<T extends { title?: string }>(
+	item: T,
+): T & { pinyin: string } {
+	return {
+		...item,
+		pinyin: item.title ? toPinyinString(item.title) : '',
+	}
+}
 
 export const [registerProcedure, useProcedure] = defineProxyService(
 	'procedure',
 	() => {
 		let fuse: Fuse<HistoryItem>
-		let histories: History.HistoryItem[]
+		let histories: HistoryItem[]
 
 		function urlToHistoryItem(url: string) {
 			return histories.find((h) => h.url === url)
 		}
 
 		function getAllHistories() {
-			return _getAllHistories()
+			return _getAllHistories().then((d) => d.map(historyAssignPinyin))
 		}
 
 		async function initFuseIndexing() {
@@ -56,7 +69,9 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 						lastHistory = history
 					}
 				}
-				const newHistories = await getHistoriesAfter(lastHistory)
+				const newHistories = await getHistoriesAfter(lastHistory).then((d) =>
+					d.map(historyAssignPinyin),
+				)
 				const newHistoriesIds: Record<string, true> = {}
 				const lastHistoriesIds: Record<string, true> = {}
 				histories.forEach((h) => {
@@ -83,9 +98,9 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 				.toArray()
 			updateFuseIndex()
 			const recentlyClosed = res
-				.map((r) => urlToHistoryItem(r.url))
-				.filter(Boolean) as HistoryItem[]
-			return uniqBy(recentlyClosed, 'id')
+				.map((r) => (r.history.url ? urlToHistoryItem(r.history.url) : null))
+				.filter(Boolean)
+			return uniqBy(recentlyClosed, 'id') as NotNull<typeof recentlyClosed>
 		}
 
 		async function searchRecentlyClosed(
@@ -98,15 +113,17 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 			const fuse = new Fuse(
 				await db.RecentlyClosedHistory.where('ctime')
 					.aboveOrEqual(startTime)
-					.toArray(),
+					.toArray()
+					.then((d) => d.map((e) => e.history)),
 				{
 					keys,
 				},
 			)
-			const searchResults = fuse.search(query)
-			return searchResults
-				.map((r) => urlToHistoryItem(r.item.url))
-				.filter(Boolean) as HistoryItem[]
+			const searchResults = fuse
+				.search(query)
+				.map((r) => (r.item.url ? urlToHistoryItem(r.item.url) : null))
+				.filter(Boolean)
+			return searchResults as NotNull<typeof searchResults>
 		}
 
 		return {

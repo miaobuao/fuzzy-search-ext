@@ -1,5 +1,6 @@
 import { db } from '@/utils/indexed-db'
 import { registerProcedure, useProcedure } from '@/utils/procedure'
+import { toPinyinString } from '@/utils/to-pinyin'
 import { debounce, isNil } from 'lodash-es'
 
 registerProcedure()
@@ -44,14 +45,26 @@ export default defineBackground(() => {
 			const history = await db.RecentlyClosedHistory.where({ url }).first()
 			if (history) {
 				await db.RecentlyClosedHistory.update(history.id, {
-					title,
+					history: {
+						...history.history,
+						title,
+						pinyin: title ? toPinyinString(title) : '',
+					},
 					ctime: Date.now(),
 				})
 				return
 			} else {
+				let history = await procedure.urlToHistoryItem(url)
+				if (isNil(history)) {
+					await procedure.updateFuseIndex()
+					history = await procedure.urlToHistoryItem(url)
+				}
+				if (isNil(history)) {
+					return
+				}
 				db.RecentlyClosedHistory.add({
-					title,
 					url,
+					history,
 					ctime: Date.now(),
 				})
 			}
