@@ -16,6 +16,7 @@ import {
 import LocaleAdapter from '@/components/LocaleAdaptor.vue'
 
 const searchInput = ref<HTMLInputElement | null>(null)
+const lastSearchString = ref('')
 const { focused: searchInputFocused } = useFocus(searchInput)
 const searchString = ref('')
 const histories = ref<HistoryItem[]>([])
@@ -52,12 +53,16 @@ async function searchRecentlyClosed(searchString: string) {
 }
 
 const search = debounce(async () => {
+	if (lastSearchString.value === searchString.value) {
+		return
+	}
 	loadingSearchResult.value = true
 	try {
 		await Promise.all([
 			searchAllHistory(searchString.value),
 			searchRecentlyClosed(searchString.value),
 		])
+		lastSearchString.value = searchString.value
 	} finally {
 		loadingSearchResult.value = false
 	}
