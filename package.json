@@ -15,6 +15,9 @@
 		"postinstall": "wxt prepare",
 		"prepare": "husky"
 	},
+	"workspaces": [
+		"packages/*"
+	],
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,css,vue,json}": "prettier --write"
 	},
@@ -40,7 +43,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^15.2.11",
 		"lodash-es": "^4.17.21",
-		"pinyin": "^4.0.0-alpha.2",
+		"pinyin": "workspace:*",
 		"prettier": "^3.4.2",
 		"segmentit": "^2.0.3",
 		"tailwindcss": "^3.4.17",
