@@ -95,9 +95,10 @@ export const [registerProcedure, useProcedure] = defineProxyService(
 			const startTime = now - range
 			const res = await db.RecentlyClosedHistory.where('ctime')
 				.aboveOrEqual(startTime)
-				.toArray()
+				.sortBy('ctime')
 			updateFuseIndex()
 			const recentlyClosed = res
+				.reverse()
 				.map((r) => (r.history.url ? urlToHistoryItem(r.history.url) : null))
 				.filter(Boolean)
 			return uniqBy(recentlyClosed, 'id') as NotNull<typeof recentlyClosed>
